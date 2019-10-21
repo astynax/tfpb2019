@@ -1,0 +1,13 @@
+#tex
+
+*.aux
+*.pdf
+*.log
+
+
+
+
+# haskell
+
+*.o
+*.hi
