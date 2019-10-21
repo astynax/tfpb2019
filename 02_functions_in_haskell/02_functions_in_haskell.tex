@@ -1,0 +1,233 @@
+% texstudio
+\documentclass[10pt, a4paper]{article}
+
+\usepackage[
+	left=1.5cm,
+	right=1.5cm,
+	top=2cm,
+	bottom=2cm,
+]{geometry}
+
+\usepackage[T1,T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{listings}
+\lstset
+{ %Formatting for code 
+	language=haskell,
+	basicstyle=\footnotesize,
+	numbers=left,
+	stepnumber=1,
+	%frame=single,
+	showstringspaces=false,
+	tabsize=1,
+	breaklines=true,
+	breakatwhitespace=false,
+}
+
+\setlength{\parindent}{0pt}
+
+
+\begin{document}
+\section{Давайте поговорим о функциях}
+
+\subsection{Как объявлять функции}
+
+У хаскеля есть комилятор $ghc$. Он компилит вашу программу в бинарь
+
+У нас етсь топ левел модуль. Там обычно есть функция main
+
+\begin{lstlisting}[language=haskell]
+module Main where
+main = putStrLn "Hello, World!"
+\end{lstlisting}
+
+Вот эта штука и будет запускаться после компиляции файла. Порядок определений значения не имеет. Можно даже сначала сделать определение функции, а лишь потом объявление.
+
+\subsubsection{Объявление функций}
+Никаких лишних скобочек для аргументов функций нет. Например вот функция для прибавления к крестику единицы
+
+\begin{lstlisting}[language=haskell]
+f x = x + 1
+\end{lstlisting}
+
+а вот для сложения двух чисел
+
+\begin{lstlisting}[language=haskell]
+f x y = x + y
+\end{lstlisting} 
+
+Функцию можно определить в 2 этапа
+
+\begin{lstlisting}[language=haskell]
+f :: Int -> Int
+f x = x + 1
+\end{lstlisting}
+
+А можно и не определять, так как в хаскеле нормально все с type inference. В таких простых случаях он выводит типы сам. (это 2 примера выше)
+
+Если нужно в мейне вывести больше, чем 1 действие, можно делать так:
+
+\begin{lstlisting}[language=haskell]
+main = do 
+    print (g 2 4)
+    print (f 5)
+\end{lstlisting}
+
+\subsubsection{Лямбда функции}
+Вообще говоря в хаскеле есть лямбдочки в таком виде
+
+\begin{lstlisting}[language=haskell]
+b = \x -> x + 1
+\end{lstlisting}
+
+И все вычисления строится именно на лямбдах. Любая функция в хаскеле будет преобразована в такую вот лямбду
+
+В хаскеле есть инфиксные функции. Например
+
+\begin{lstlisting}[language=haskell]
+(+++) :: Int -> Int -> Int
+x +++ y = x + y + x + y
+\end{lstlisting} 
+
+\subsubsection{Функция \$}
+Есть интересный оператор \$. У него объявление такое:
+
+\begin{lstlisting}[language=haskell]
+($) :: (a -> b) -> a -> b
+f $ x = f x
+\end{lstlisting}
+ 
+Т.е. это своего рода инфиксные приоритетопонижатель...
+
+Зачем? У него самый низкий приоритет, а у функций (с именем) наоборот самый высокий приоритет.
+
+Это позволяет эквивалентно переписывать конструкции... Например вот так:
+\begin{lstlisting}[language=haskell]
+main = do 
+    print (g 2 4)
+    print $ g 2 4
+\end{lstlisting}
+
+Получается "возьми функцию слева и примени к ней все что получится из функции (функций) справа", когда та досчитается
+
+
+\subsubsection{undefined вместо определения}
+
+Можно функцию объявить, но не определить.
+\begin{lstlisting}[language=haskell]
+funk :: Int -> Int
+funk x = undefined
+\end{lstlisting}
+
+Оно скомпилится, будет тайп-чекаться везде, но при вызове выкинет жуку.
+
+\subsubsection{Ленивость в хаскеле}
+
+Хаскель ничего не делает, пока ему не нужно. По сему, вы можете определять функции, которые возвращают бесконечные списки... И даже найти их длину!
+
+\begin{lstlisting}[language=haskell]
+ones = 1 : ones
+main = do
+    print $ leng (take 100000 ones)
+\end{lstlisting}
+
+Эта штука работает, так как хаскель не пытается вытащить все единички из вызова $ones$, а берет только необходимое количество, чтобы выполнился $take$. К слову, $leng$ тут тоже считает длину сразу же с получением нового элемента из $take$.
+
+\subsection{Стандартные конструкции языка}
+
+\subsubsection{Комментарии}
+Однострочечные комментарии - это два минуса. Многострочечные - это фигурная скобка и минус.
+\begin{lstlisting}[language=haskell]
+-- funk :: Int -> Int one line comment
+
+{- multiple line comment
+funk x = undefined
+blalbla
+-}
+\end{lstlisting}
+
+
+\subsubsection{If'чики}
+\begin{lstlisting}[language=haskell]
+sign x = 
+    if x < 0 
+    then -1 
+    else 
+        if x > 0
+        then 1 
+        else 0
+\end{lstlisting}
+
+ифчики это хорошо, но чаще используют pattern mathing. 
+
+\subsubsection{pattern mathing}
+Как пример: функция, которая возвращает строкое представление
+
+\begin{lstlisting}[language=haskell]
+data Foo = A | B
+
+fromFoo :: Foo -> String 
+fromFoo A = "A"
+fromFoo B = "B"
+\end{lstlisting}
+
+эта штука на самом деле тоже сахар. Она превращается в 
+
+\begin{lstlisting}[language=haskell]
+data Foo = A | B
+
+fromFoo' :: Foo -> String 
+fromFoo' x = 
+    case x of
+      A -> "A"
+      B -> "B"
+\end{lstlisting}
+
+На самом деле там есть и еще более упоротый синтаксис с фигурными скобками, но так редко пишут... разве что некоторые деды из haskell сообщества.
+
+Паттерн матчинг умный и сам определит, что он объявлен избыточно или недостаточно. При чем во втором случае это может быть и варнинг, и ошибка, в зависимости от параметров компиляции.
+
+\begin{lstlisting}[language=haskell]
+goodNumber 1 = True
+goodNumber 7 = True
+goodNumber x 
+    | x < 100 = True
+    | x >= 100 = False 
+\end{lstlisting}
+
+Тут мы вообще начали объявлять функцию сразу через паттерн матчинг.
+
+\subsubsection{Паттер матчинг, рекурсия и работа со списками}
+Циклов в хаскеле нет. Но у нас же есть рекурсия! Вот так, например, можно найти длину списка
+\begin{lstlisting}[language=haskell]
+leng [] = 0
+leng (_:xs) = 1 + leng xs 
+\end{lstlisting}
+
+Лист - это на самом деле голова листа + его хвост. В данном случае хвост - это $xs$, а голова - это нечто, но мы его не используем, поэтому вместо головы мы пишем \_.
+
+Последний элемент можно взять, например, вот так:
+\begin{lstlisting}[language=haskell]
+lastElem [] = error "Oops!"
+lastElem (x:[]) = x
+lastElem (_:xs) = lastElem xs
+\end{lstlisting}
+
+Тут мы список проматчим на 3 значения:
+\begin{enumerate}
+	\item Пустой список. Для него мы кидаем ошибку (к слову, вот так можно кинуть ошибку)
+	\item Список из головы, но без хвоста, т.е. один единственный элементм
+	\item Список из головы + хвоста. Здесь голову мы отбрасываемся и опускаемся дальше в хвост
+\end{enumerate}
+
+Хаскель компилятор очень хорошо умеет оптимизировать и хвостовую рекурсию, и прочие хвостовые вызовы.
+
+ДЗ: Реализовать функцию хода для задачи по ссылке: https://gist.github.com/astynax/1eb88e195c4bab2b8d31d04921b18dd0
+Целевое решение можно посмотреть в папке с этим файлом {\br move4x4.hs}
+
+\end{document}

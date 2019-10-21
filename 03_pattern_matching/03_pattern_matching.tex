@@ -1,0 +1,307 @@
+% texstudio
+\documentclass[10pt, a4paper]{article}
+
+\usepackage[
+	left=1.5cm,
+	right=1.5cm,
+	top=2cm,
+	bottom=2cm,
+]{geometry}
+
+\usepackage[T1,T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{listings}
+\lstset
+{ %Formatting for code 
+	language=haskell,
+	basicstyle=\footnotesize,
+	numbers=left,
+	stepnumber=1,
+	%frame=single,
+	showstringspaces=false,
+	tabsize=1,
+	breaklines=true,
+	breakatwhitespace=false,
+}
+
+\setlength{\parindent}{0pt}
+
+
+\begin{document}
+\section{Давайте поговорим о паттерн матчинге на листах}
+\subsection{Введение}
+
+\subsubsection{Определения}
+{\bf Тотальная функция} - определена на всей области возможных значений
+
+{\bf Нетотальная} - на каких-то значениях падает.
+
+Давайте теперь рассмотрим примеры функций на списках, доступных в хаскеле, и приведем их реализации на паттрен матчинге
+
+
+\subsection{Стандартные функции на листах}
+
+
+\subsubsection{Функция head}
+Пример - функция $head$, которая возвращает голову листа, упадет с ошибкой при передачи пустого листа. Т.е. она нетотальрная
+\begin{lstlisting}[language=haskell]
+head :: [a] -> a
+head (x:_) = x
+head _ = error "empty list"
+\end{lstlisting}
+
+\subsubsection{Функция tail}
+Еще есть функция $tail$ - она вообще говоря в $Prelude$ падает на пустом списке, т.е. она нетотальна. 
+
+Но мы можем реализовать ее посвоему. Если нет даже головы или есть элемент всего один,то результат один и тот же - пустой список. Т.е. можно определить тотальную функцию $totalTail$ 
+
+\begin{lstlisting}[language=haskell]
+totalTail :: [a] -> [a]
+totalTail (_: xs) = xs
+totalTail _ = []
+\end{lstlisting}
+
+\subsubsection{Функция take}
+Еще есть функция $take$. Она возвращает какое-то (заданное) количество элементов
+
+\begin{lstlisting}[language=haskell]
+take :: Int -> [a] -> [a]
+take 0 _ = []
+take n (x: xs) = x : take (n-1) xs
+take _ [] = []
+\end{lstlisting}
+
+\subsubsection{Функция map}
+
+Преобазует $a -> b$ при помощи функции
+
+\begin{lstlisting}[language=haskell]
+map :: (a -> b) -> [a] -> [b]
+map _ [] = []
+map f (x: xs) = f x : map f xs
+\end{lstlisting}
+
+\subsubsection{Функция filter}
+
+Фильтрует значения из списка
+
+Вариант №1 (обычный)
+\begin{lstlisting}[language=haskell]
+filter :: (a -> Bool) -> [a] -> [a]
+filter _ [] = []
+filter p (x:xs) = 
+    if p x 
+    then x : filter p xs 
+    else filter p xs
+\end{lstlisting}
+
+Вариант 2 (модный)
+\begin{lstlisting}[language=haskell]
+filter :: (a -> Bool) [a] -> [a]
+filter _ [] = []
+filter p (x: xs)
+    | p x       =   x : rest
+    | otherwise =       rest
+    where 
+        rest = filter p xs
+\end{lstlisting}
+
+\subsubsection{Функция zip}
+
+Которая объединяет 2 списка в список пар
+
+\begin{lstlisting}[language=haskell]
+zip :: [a] -> [b] -> [(a,b)]
+zip _     [] = []
+zip []    _  = []
+zip (x:xs) (y:ys) = (x,y): zip xs ys
+\end{lstlisting}
+
+\subsubsection{Функция zipWith}
+
+Которая объединяет 2 списка в третий при помощи вашей любой функции
+
+\begin{lstlisting}[language=haskell]
+zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith _ _ [] = []
+zipWith _ [] _ = []
+zipWith f (x:xs) (y:ys) = f x y : zipWith f xs ys
+\end{lstlisting}
+
+Это упражнение можно продолжать до zipWith3, например, которая объеденит уже 3 
+
+\begin{lstlisting}[language=haskell]
+zipWith3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]
+zipWith3 _ _ _ [] = []
+zipWith3 _ _ [] _ = []
+zipWith3 _ [] _ _ = []
+zipWith3 f (x:xs) (y:ys) (z:zs) = f x y z : zipWith3 f xs ys zs
+\end{lstlisting}
+
+А дальше можно продолжать в принципе до бесконечности
+
+
+\subsubsection{Функции takeWhile и dropWhile}
+
+
+takeWhile берет элементы, пока не найдет первый false, как найден -> возвращает все элементы для этого
+
+dropWhile наоборот дропает, пока не найдет первый false, дальше возвращает весь остаток (+ тот элемент, который первый "не подошел")
+
+В хаскеле можно определять одинковые сигнатуры вот так:
+
+\begin{lstlisting}[language=haskell]
+takeWhile, dropWhile :: (a -> Bool) -> [a] -> [a]
+takeWhile _ [] = []
+takeWhile p (x:xs) 
+  | p x       = x: takeWhile p xs
+  | otherwise = []
+
+dropWhile _ [] = []
+dropWhile p (x:xs)
+  | p x       = dropWhile p xs
+  | otherwise = x : xs
+\end{lstlisting}
+
+\subsubsection{Функция свертки она же fold}
+
+Свертка - это взять все элементы некого листа и каким-то образом их объеденить (т.е. "свернуть" все элементы в 1 элемент).
+
+Сворачивать в общем-то можно слева направо или справа налево. Для + например, разницы нет. А вот для умножения квадратных матриц очень даже влияет.
+
+В примере ниже сверху левая свертка, снизу правая свертка.
+
+$$((1+2) + 3) + 4$$
+$$1 + (2 + (3 + 4))$$
+
+А вот и определения сверток
+\begin{lstlisting}[language=haskell]
+foldl :: (acc -> b -> acc) -> acc -> [b] -> acc
+foldr :: (b -> acc -> acc) -> acc -> [b] -> acc
+
+foldl _ acc []     =  acc 
+foldl f acc (x:xs) =  foldl f (f acc x) xs
+
+foldr _ acc []     =  acc 
+foldr f acc (x:xs) =  f x (foldr f acc xs)
+
+\end{lstlisting}
+
+На основе сверток (и на основе того, что в хаскеле из сигнатуры можно вернуть любую часть этой сигнатуры) можно очень коротко писать всякие другие классные функции. Например сумму и умножение
+
+\begin{lstlisting}[language=haskell]
+sum     = foldl (+) 0
+product = foldl (*) 1 
+\end{lstlisting}
+
+
+\subsubsection{Бесконечный поток чисел Фибоначчи!}
+Над следующим пунктом можно помедетировать. Это бесконечный список Фибоначчи. Его бесконечность нас не сильно волнует, так как в хаскеле все ленивое.
+\begin{lstlisting}[language=haskell]
+fibs :: [Int]
+fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
+\end{lstlisting}
+
+
+\subsubsection{Конкатенация списков}
+Конкатенация делается вообще чудесно
+
+\begin{lstlisting}[language=haskell]
+(++) :: [a] -> [a] -> [a]
+(x:xs) ++ ys = x : (xs ++ ys)
+[]     ++ ys =            ys
+\end{lstlisting}
+
+Тут написано, что мы в первом матчинге складываем первый элемент первого списка с остатком первого списка и полный вторым списком.
+
+А во втором матчинге, если первый список закончился - просто добавляем сзади весь второй список.
+
+\subsection{Всякое разное}
+\subsubsection{Оператор (.)}
+
+Есть такое оператор со следующей сигнатурой
+\begin{lstlisting}[language=haskell]
+(.) :: (b->c) -> (a->b) -> (a->c)
+
+-- f . g = \x -> f (g x)
+
+pipe :: (b -> c) -> (a -> b) -> [a] -> [a]
+pipe f = map f . map g 
+\end{lstlisting}
+
+Последние две строчки - это {\bf $\eta$ редукция} (читается как ета-редукция). Такая нотация еще называется "бесточечная", хотя в хаскеле здесь как раз-таки и используется точка...
+
+Это напоминает суперпозицию функций из математики.
+
+\subsubsection{Задачка про воду}
+Есть некоторая местность. Её рельеф задан высотой столбиков. Идет дождь. Дождь прошел, а там где какие-то ямы образовались лужи. Нужно посчитать, сколько туда накапало воды...
+
+Давайте её решим
+
+\begin{lstlisting}[language=haskell]
+
+r = [1, 5, 3, 8, 3, 2, 3, 7, 4]
+
+-
+-----
+---**
+--------
+---****
+--*****
+---****
+-------
+----
+\end{lstlisting}
+Звездочками отмечено, где есть вода. Палочками - высота рельефа.
+ 
+Есть такие функции $scanl$ и $snanr$. Это как $fold$, только он возвращает значение аккумулятора на каждом из шагов
+\begin{lstlisting}[language=haskell]
+ main = print $ scanl (+) 0 [1,2,3,4,5] -- yeild us [0,1,3,6,10,15]
+\end{lstlisting}
+
+Мы можем сделать 2 скана. 1 слева на максимум. Другой справа на максимум.
+\begin{lstlisting}[language=haskell]
+r = [1, 5, 3, 8, 3, 2, 3, 7, 4]
+main = do
+  print $ r
+  print $ tail $ scanl max 0 r
+  print $ init $ scanr max 0 r
+
+[1, 5, 3, 8, 3, 2, 3, 7, 4]
+[1, 5, 5, 8, 8, 8, 8, 8, 8]
+[8, 8, 8, 8, 7, 7, 7, 7, 4]
+\end{lstlisting}
+
+Значение сверху - это "дно". Значения снизу (2 ряда) - это одна и вторая стенка и её "тень". По этим трем массивам видно, что нужно вычесть значение от минимума из двух стенок значение "дна" (По выводу видно, что что-то отличное от нуля у нас будет в позиции 3, а также 5,6,7).
+
+Т.е. у нас следующий алгорим
+\begin{enumerate}
+	\item Вычислить границы, считая с левой стороны (т.е. запомнить последний максимум и повторять его, пока не найдем еще 1 больший максимум). Это будет что-то вроде "тени"
+	\item Вычислить границы, считая с правой стороны
+	\item Берем минимум от двух пар из пунктов 1 и 2
+	\item Вычитаем из значение этого минимума значение в точке
+	\item Складываем сумму этих результатов
+\end{enumerate}
+
+При реализации на хаскеле все будет записао как бы наоборот
+
+\begin{lstlisting}[language=haskell]
+r = [1, 5, 3, 8, 3, 2, 3, 7, 4]
+main = do
+   print r
+   print x
+   where 
+       x = foldl (+) 0 ws
+       ws = zipWith (-) bs r
+       bs = zipWith min bl br
+       bl = tail $ scanl max 0 r
+       br = init $ scanr max 0 r
+\end{lstlisting}
+
+
+\end{document}
