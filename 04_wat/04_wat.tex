@@ -1,0 +1,141 @@
+% texstudio
+\documentclass[10pt, a4paper]{article}
+
+\usepackage[
+	left=1.5cm,
+	right=1.5cm,
+	top=2cm,
+	bottom=2cm,
+]{geometry}
+
+\usepackage[T1,T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{listings}
+\lstset
+{ %Formatting for code 
+	language=haskell,
+	basicstyle=\footnotesize,
+	numbers=left,
+	stepnumber=1,
+	%frame=single,
+	showstringspaces=false,
+	tabsize=1,
+	breaklines=true,
+	breakatwhitespace=false,
+}
+
+\setlength{\parindent}{0pt}
+
+
+\begin{document}
+\section{Давайте поговорим о тайпклассах}
+\subsection{Введение}
+\subsubsection{Определения}
+
+{\bf Тайпкласс} - (классы типов) -- это способ получить из неограниченного полиморфизма ограниченный. Т.е. есть вот у нас полностью полиморфные функции
+
+\begin{lstlisting}
+f :: Int -> Int
+f _ = 0
+g :: a -> a
+g x = x
+\end{lstlisting} 
+
+У этих функций сверху тривиальная реализация и все понятно. А давайте мы введем "общее повеение, которое могут реализовывать некоторые типы". Это и будет тайпкласс
+
+\begin{lstlisting}
+class CanFoo a where
+  toFoo :: a -> String
+
+instance CanFoo Int where
+  toFoo 42 = "42!"
+  toFoo _ = "Oops!"
+
+main = do
+  print $ toFoo (42::Int)
+\end{lstlisting} 
+
+Мы получим некий тайпкласс CanFoo. И реализовали его только для инта. При этом нам даже обязательно пришлось указать, что 42 - это именно Int, а не какой-то там другой тип. Теперь мы можем писать так:
+
+\begin{lstlisting}
+code :: CanFoo a => a -> String
+code x = "!" ++ toFoo x
+\end{lstlisting} 
+
+И при этом не можем писать просто вот так:
+\begin{lstlisting}
+code a -> String
+code a = "!" ++ toFoo a
+\end{lstlisting}  
+
+Так как во втором случае не понятно, умеет ли x в CanFoo. А в первом варианте мы в сигнатуре функции указали, что да, аргумент умеет в CanFoo.
+
+
+
+\subsection{Примеры тайпклассов в haskell и их расширения}
+
+
+\subsubsection{Пример тайпкласса Ord в Haskell}
+Вот этот кусок у вас выведется, если в ghci написать $:i Ord$
+
+\begin{lstlisting}
+class Eq a => Ord a where
+    compare :: a -> a -> Ordering
+    (<) :: a -> a -> Bool
+    (<=) :: a -> a -> Bool
+    (>) :: a -> a -> Bool
+    (>=) :: a -> a -> Bool
+    max :: a -> a -> a
+    min :: a -> a -> a
+    {-# MINIMAL compare | (<=) #-}
+
+instance Ord a => Ord [a] 
+instance Ord Word 
+instance Ord Ordering 
+instance Ord Int 
+instance Ord Float 
+instance Ord Double 
+instance Ord Char 
+instance Ord Bool 
+
+\end{lstlisting}
+
+В первой строчке тут указано, что сравнение возможно только для сущностей, которые также умеют сравниваться между собой (т.е. у них описано поведение для Eq)
+
+
+\subsubsection{Полугруппа}
+
+{\bf Полугруппа} - это свойство типа, о котором известно, что у него есть одна ассоциативная операция. Это не совсем матичетическое определение, но для нас подойдет.
+
+\begin{lstlisting}
+class Semigroup a where
+  (<>) :: a -> a -> a
+\end{lstlisting}
+
+У нее есть законы. Ассоциативность:
+	$$x <> (y <> z) == (x <> y) <> z$$
+	
+Эта штука, например, работает для минимума, максимума, конкатенации строк.
+
+\subsubsection{Моноид}
+{\bf Моноид} - это полугруппа с нейтральным элементом.
+
+\begin{lstlisting}
+class Semigroup a => Monoid a where
+	mempty :: a
+\end{lstlisting}
+
+\subsubsection{Функция mconcat}
+В стандартной библиотеке есть функция mconcat. Она схлопывает спикок элементов полугрупп.
+\begin{lstlisting}
+mconcat :: Monoid a => [a] -> a
+\end{lstlisting}
+
+
+
+\end{document}

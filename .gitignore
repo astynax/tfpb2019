@@ -3,6 +3,7 @@
 *.aux
 *.pdf
 *.log
+*.synctex.gz
 
 
 
