@@ -36,3 +36,4 @@
         - Реализовать функцию, которая по набору "высок точек", выведет на экран рельеф, заполненный водой. Более подробна задача описана в .tex файле в самом конце. Пример реализации: [terrain_after_rain.hs](03_pattern_matching/terrain_after_rain.hs)
 4. Классы типов, Моноид
     - Классы типов: [LHS](04_typeclasses/typeclasses.lhs)+[PDF](04_typeclasses/typeclasses.pdf)
+    - Полугруппа и моноид: [LHS](04_typeclasses/monoid.lhs)+[PDF](04_typeclasses/monoid.pdf)
