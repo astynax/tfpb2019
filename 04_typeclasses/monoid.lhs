@@ -154,6 +154,12 @@ Monoid
 
 Ещё важно: проверьте законы! Не факт, что оба инстанса реализуемы :)
 
+Ссылки
+------
+
+- [Semigroup](https://hackage.haskell.org/package/base-4.11.1.0/docs/Data-Semigroup.html#t:Semigroup)
+- [Monoid](https://hackage.haskell.org/package/base-4.11.1.0/docs/Data-Monoid.html#t:Monoid)
+
 (машинерия для запуска проверок)
 --------------------------------
 
