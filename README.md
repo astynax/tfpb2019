@@ -37,3 +37,5 @@
 4. Классы типов, Моноид
     - Классы типов: [LHS](04_typeclasses/typeclasses.lhs)+[PDF](04_typeclasses/typeclasses.pdf)
     - Полугруппа и моноид: [LHS](04_typeclasses/monoid.lhs)+[PDF](04_typeclasses/monoid.pdf)
+5. Records, Functor
+    - Классы типов: [LHS](05_records_and_hkt/records.lhs)+[PDF](05_records_and_hkt/records.pdf)
