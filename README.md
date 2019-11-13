@@ -37,6 +37,9 @@
 4. Классы типов, Моноид
     - Классы типов: [LHS](04_typeclasses/typeclasses.lhs)+[PDF](04_typeclasses/typeclasses.pdf)
     - Полугруппа и моноид: [LHS](04_typeclasses/monoid.lhs)+[PDF](04_typeclasses/monoid.pdf)
-5. Records, Functor
+5. Записи, Функтор:
     - Records: [LHS](05_records_and_hkt/records.lhs)+[PDF](05_records_and_hkt/records.pdf)
     - HKT, Functor, Bifunctor, Foldable: [LHS](05_records_and_hkt/functor.lhs)+[PDF](05_records_and_hkt/functor.pdf)
+6. Аппликативный функтор:
+    - Теория: [LHS](06_applicative/applicative.lhs)+[PDF](06_applicative/applicative.pdf)
+    - Домашка: [KeepFlip.hs](06_applicative/KeepFlip.hs)
