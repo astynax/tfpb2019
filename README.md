@@ -43,3 +43,5 @@
 6. Аппликативный функтор:
     - Теория: [LHS](06_applicative/applicative.lhs)+[PDF](06_applicative/applicative.pdf)
     - Домашка: [KeepFlip.hs](06_applicative/KeepFlip.hs)
+7. Монада:
+    - Теория: [LHS](07_monad/monads.lhs)+[PDF](07_monad/monads.pdf)
