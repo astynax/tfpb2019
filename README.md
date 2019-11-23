@@ -43,5 +43,8 @@
 6. Аппликативный функтор:
     - Теория: [LHS](06_applicative/applicative.lhs)+[PDF](06_applicative/applicative.pdf)
     - Домашка: [KeepFlip.hs](06_applicative/KeepFlip.hs)
-7. Монада:
+7. Монады Reader, Writer:
     - Теория: [LHS](07_monad/monads.lhs)+[PDF](07_monad/monads.pdf)
+8. Монада State. Парсер-комбинаторы:
+    - State: [LHS](08_more_monad/state.lhs)+[PDF](08_more_monad/state.pdf)
+    - Parsers: [LHS](08_more_monad/parser.lhs)+[PDF](08_more_monad/parser.pdf)
