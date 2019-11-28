@@ -48,3 +48,6 @@
 8. Монада State. Парсер-комбинаторы:
     - State: [LHS](08_more_monad/state.lhs)+[PDF](08_more_monad/state.pdf)
     - Parsers: [LHS](08_more_monad/parser.lhs)+[PDF](08_more_monad/parser.pdf)
+9. Монадные трансформеры:
+    - Transformers: [LHS](09_transformers/Transformers.lhs)+[PDF](09_transformers/Transformers.pdf)
+    - [PPrint.hs](09_transformers/PPrint.hs)
